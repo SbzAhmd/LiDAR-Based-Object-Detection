@@ -132,7 +132,7 @@ class PointPillarsNet:
     def filter_predictions(self, boxes, scores, labels, score_threshold=0.3):
         # Apply non-maximum suppression to remove duplicate detections
         keep_indices = []
-        for class_id in range(3):  # For each class
+        for class_id in range(8):  # Changed from 3 to 8 classes
             class_mask = labels == class_id
             class_boxes = boxes[class_mask]
             class_scores = scores[class_mask]

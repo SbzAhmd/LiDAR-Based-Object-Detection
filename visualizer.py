@@ -23,6 +23,20 @@ class LidarVisualizer:
         view_control.set_front([0.5, -0.5, 0.5])
         view_control.set_up([0, 0, 1])
 
+        # Define colors for different object types
+        self.colors = {
+            0: (1, 0, 0),      # Car - Red
+            1: (0, 1, 0),      # Pedestrian - Green
+            2: (0, 0, 1),      # Cyclist - Blue
+        }
+        
+        # Object type names
+        self.object_names = {
+            0: "Car",
+            1: "Pedestrian",
+            2: "Cyclist",
+            }
+
     def create_point_cloud(self, points):
         """
         Create Open3D point cloud object from numpy array with moderate downsampling.
@@ -95,6 +109,37 @@ class LidarVisualizer:
         print(f"Point cloud saved to: {save_path}")
         return save_path
     
+    def add_legend(self, labels):
+        """
+        Add color legend to visualize different object types
+        """
+        unique_labels = sorted(list(set(labels)))
+        legend_height = len(unique_labels) * 0.15
+        start_y = legend_height / 2
+
+        for idx, label in enumerate(unique_labels):
+            # Create text label
+            text = f"{self.object_names.get(label, f'Type {label}')}"
+            pos = [-1.5, start_y - (idx * 0.15), 0]
+            
+            # Create colored box
+            box_points = np.array([
+                pos,
+                [pos[0] + 0.1, pos[1], pos[2]],
+                [pos[0] + 0.1, pos[1] - 0.1, pos[2]],
+                [pos[0], pos[1] - 0.1, pos[2]]
+            ])
+            
+            lines = [[0, 1], [1, 2], [2, 3], [3, 0]]
+            color = self.colors.get(label, (0.5, 0.5, 0.5))
+            
+            line_set = o3d.geometry.LineSet()
+            line_set.points = o3d.utility.Vector3dVector(box_points)
+            line_set.lines = o3d.utility.Vector2iVector(lines)
+            line_set.colors = o3d.utility.Vector3dVector([color for _ in range(len(lines))])
+            
+            self.vis.add_geometry(line_set)
+
     def visualize(self, points, boxes=None, scores=None, labels=None, save=True, filename="point_cloud.ply"):
         """
         Visualize point cloud and detection results.
@@ -112,16 +157,19 @@ class LidarVisualizer:
         
         # Add detection boxes
         if boxes is not None:
+            print("\nDetected objects:")
             for i, box in enumerate(boxes):
-                color = (1, 0, 0)  # Red for cars
-                if labels is not None:
-                    if labels[i] == 1:  # Pedestrian
-                        color = (0, 1, 0)  # Green
-                    elif labels[i] == 2:  # Cyclist
-                        color = (0, 0, 1)  # Blue
+                label = int(labels[i]) if labels is not None else 0
+                color = self.colors.get(label, (0.5, 0.5, 0.5))  # Default gray if label not found
+                object_name = self.object_names.get(label, f"Type {label}")
+                print(f"Object {i+1}: {object_name} (Label: {label}, Color: {color})")
                 
                 bbox = self.create_bbox(box, color)
                 self.vis.add_geometry(bbox)
+            
+            # Add legend if we have labels
+            if labels is not None:
+                self.add_legend(labels)
         
         print("\nVisualization window is open. Close the window to continue...")
         
