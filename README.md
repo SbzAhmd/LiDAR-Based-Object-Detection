@@ -13,26 +13,7 @@ This project focuses on:
 - 📊 Visualizing detected objects in 2D/3D space  
 - 🚦 Analyzing traffic-related metrics  
 
-The system is modular and structured for easy experimentation and extension.
-
----
-
-## 🗂 Project Structure
-
-LiDAR-Based-Object-Detection/
-│
-├── lidar_loader.py # Loads and preprocesses LiDAR data
-├── model_inference.py # Handles model loading and inference
-├── test_detection.py # Testing script for detection
-├── traffic_analyzer.py # Traffic metrics and analysis
-├── normal_visualization.py # Standard visualization utilities
-├── visualizer.py # Detection visualization
-├── main.py # Main execution script
-├── requirements.txt # Project dependencies
-├── info.txt # Additional project info
-└── .gitignore
-
-
+The system is modular and structured for easy experimentation and extension
 
 ---
 
@@ -52,4 +33,4 @@ pip install -r requirements.txt
 
 python main.py
 
-python test_detection.py
+python test_detection.py 
